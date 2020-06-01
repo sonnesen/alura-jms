@@ -3,9 +3,12 @@ package br.com.alura.jms;
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
 import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
 public class TesteConsumidor {
@@ -21,10 +24,21 @@ public class TesteConsumidor {
 		Destination destination = (Destination) context.lookup("financeiro");
 
 		MessageConsumer consumer = session.createConsumer(destination);
+		consumer.setMessageListener(new MessageListener() {
 
-		Message message = consumer.receive();
+			@Override
+			public void onMessage(Message message) {
 
-		System.out.println("Recebendo msg: " + message);
+				TextMessage textMessage = (TextMessage) message;
+
+				try {
+					System.out.println(textMessage.getText());
+				} catch (JMSException e) {
+					e.printStackTrace();
+				}
+			}
+
+		});
 
 		session.close();
 		connection.close();
