@@ -1,6 +1,5 @@
 package br.com.alura.jms;
 
-import java.text.MessageFormat;
 import java.util.Properties;
 
 import javax.jms.Connection;
@@ -11,29 +10,27 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 
-public class TesteProdutor {
+public class TesteProdutorTopico {
 
 	public static void main(String[] args) throws Exception {
 		Properties properties = new Properties();
 		properties.setProperty("java.naming.factory.initial", "org.apache.activemq.jndi.ActiveMQInitialContextFactory");
 		properties.setProperty("java.naming.provider.url", "tcp://localhost:61616");
-		properties.setProperty("queue.financeiro","fila.financeiro");
+		properties.setProperty("topic.loja","topico.loja");
 
 		InitialContext context = new InitialContext(properties);
 		ConnectionFactory factory = (ConnectionFactory) context.lookup("ConnectionFactory");
-		Connection connection = factory.createConnection();
 
+		Connection connection = factory.createConnection();
 		connection.start();
 
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-		Destination destination = (Destination) context.lookup("financeiro");
+		Destination topico = (Destination) context.lookup("loja");
 
-		MessageProducer producer = session.createProducer(destination);
+		MessageProducer producer = session.createProducer(topico);
 
-		for (int i = 0; i < 1000; i++) {
-			Message message = session.createTextMessage(MessageFormat.format("<pedido><id>{0}</id></pedido>", i));
-			producer.send(message);
-		}
+		Message message = session.createTextMessage("<pedido><id>4123</id></pedido>");
+		producer.send(message);
 
 		session.close();
 		connection.close();

@@ -1,17 +1,17 @@
 package br.com.alura.jms;
 
+import java.text.MessageFormat;
 import java.util.Properties;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
+import javax.jms.Message;
+import javax.jms.MessageProducer;
 import javax.jms.Session;
-import javax.jms.TextMessage;
 import javax.naming.InitialContext;
 
-public class TesteConsumidor {
+public class TesteProdutorFila {
 
 	public static void main(String[] args) throws Exception {
 		Properties properties = new Properties();
@@ -28,15 +28,12 @@ public class TesteConsumidor {
 		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 		Destination destination = (Destination) context.lookup("financeiro");
 
-		MessageConsumer consumer = session.createConsumer(destination);
-		consumer.setMessageListener(message -> {
-			try {
-				TextMessage textMessage = (TextMessage) message;
-				System.out.println(textMessage.getText());
-			} catch (JMSException e) {
-				e.printStackTrace();
-			}
-		});
+		MessageProducer producer = session.createProducer(destination);
+
+		for (int i = 0; i < 1000; i++) {
+			Message message = session.createTextMessage(MessageFormat.format("<pedido><id>{0}</id></pedido>", i));
+			producer.send(message);
+		}
 
 		session.close();
 		connection.close();
