@@ -22,18 +22,20 @@ public class TesteConsumidorFila {
 
 		InitialContext context = new InitialContext(properties);
 		ConnectionFactory factory = (ConnectionFactory) context.lookup("ConnectionFactory");
-		Connection connection = factory.createConnection();
+		Connection connection = factory.createConnection("user", "senha");
 
 		connection.start();
 
-		Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+		Session session = connection.createSession(true, Session.SESSION_TRANSACTED);
 		Destination destination = (Destination) context.lookup("financeiro");
 
 		MessageConsumer consumer = session.createConsumer(destination);
 		consumer.setMessageListener(message -> {
 			try {
 				TextMessage textMessage = (TextMessage) message;
+//				message.acknowledge();
 				System.out.println(textMessage.getText());
+				session.commit();
 			} catch (JMSException e) {
 				e.printStackTrace();
 			}

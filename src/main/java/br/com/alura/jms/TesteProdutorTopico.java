@@ -10,6 +10,9 @@ import javax.jms.MessageProducer;
 import javax.jms.Session;
 import javax.naming.InitialContext;
 
+import br.com.alura.modelo.Pedido;
+import br.com.alura.modelo.PedidoFactory;
+
 public class TesteProdutorTopico {
 
 	public static void main(String[] args) throws Exception {
@@ -29,8 +32,14 @@ public class TesteProdutorTopico {
 
 		MessageProducer producer = session.createProducer(topico);
 
-		Message message = session.createTextMessage("<pedido><id>123</id><e-book>false</e-book></pedido>");
-		message.setBooleanProperty("ebook", false);
+		Pedido pedido = new PedidoFactory().geraPedidoComValores();
+
+//		StringWriter writer = new StringWriter();
+//		JAXB.marshal(pedido, writer);
+//		String xml = writer.toString();
+
+		Message message = session.createObjectMessage(pedido);
+//		message.setBooleanProperty("ebook", false);
 
 		producer.send(message);
 
